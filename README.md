@@ -21,22 +21,22 @@ install.packages("testthat")
 
 ## Run locally
 
-From R, with working directory set to this folder:
+From R, with working directory set to this folder (repo root):
 
 ```r
-shiny::runApp("/Users/johnb/Documents/Cursor Files/Latin Squares/rcls-shiny")
+shiny::runApp(".")
 ```
 
 Or from terminal:
 
 ```bash
-cd "/Users/johnb/Documents/Cursor Files/Latin Squares/rcls-shiny" && Rscript -e 'shiny::runApp(".")'
+cd rcls-shiny && Rscript -e 'shiny::runApp(".")'
 ```
 
 ## Run tests
 
 ```bash
-cd "/Users/johnb/Documents/Cursor Files/Latin Squares/rcls-shiny" && Rscript tests/testthat.R
+cd rcls-shiny && Rscript tests/testthat.R
 ```
 
 ## v1 checks
@@ -80,10 +80,10 @@ install.packages("rsconnect")
 rsconnect::setAccountInfo(name = "YOUR_ACCOUNT", token = "YOUR_TOKEN", secret = "YOUR_SECRET")
 ```
 
-3. Deploy:
+3. Deploy (from repo root):
 
 ```r
-rsconnect::deployApp("/Users/johnb/Documents/Cursor Files/Latin Squares/rcls-shiny", appName = "rcls-validator")
+rsconnect::deployApp(".", appName = "rcls-validator")
 ```
 
 For reproducible deploys, initialize `renv` in this folder before deploying:

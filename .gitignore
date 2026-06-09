@@ -4,3 +4,4 @@
 .DS_Store
 renv/library/
 renv/staging/
+rsconnect/
