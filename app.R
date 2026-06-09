@@ -1,6 +1,94 @@
 library(shiny)
 
 source("R/validate.R", local = TRUE)
+source("R/snail_layout.R", local = TRUE)
+source("R/snail_autofill.R", local = TRUE)
+
+read_grid_inputs <- function(input, n) {
+  mat <- matrix("", n, n)
+  for (i in seq_len(n)) {
+    for (j in seq_len(n)) {
+      raw <- input[[paste0("cell_", i, "_", j)]]
+      mat[i, j] <- if (is.null(raw)) "" else trimws(as.character(raw))
+    }
+  }
+  mat
+}
+
+cell_input <- function(i, j) {
+  textInput(
+    inputId = paste0("cell_", i, "_", j),
+    label = NULL,
+    value = "",
+    width = "3em"
+  )
+}
+
+classic_grid <- function(n) {
+  tags$table(
+    class = "grid-table",
+    tags$thead(
+      tags$tr(
+        tags$th(""),
+        lapply(seq_len(n), function(j) tags$th(j))
+      )
+    ),
+    tags$tbody(
+      lapply(seq_len(n), function(i) {
+        tags$tr(
+          tags$th(i),
+          lapply(seq_len(n), function(j) {
+            tags$td(cell_input(i, j))
+          })
+        )
+      })
+    )
+  )
+}
+
+snail_grid <- function(n) {
+  col_headers <- div(
+    class = "snail-col-headers",
+    lapply(seq_len(n), function(j) {
+      span(class = "snail-header-cell", j)
+    })
+  )
+
+  row_headers <- div(
+    class = "snail-row-headers",
+    lapply(seq_len(n), function(i) {
+      span(class = "snail-header-cell", i)
+    })
+  )
+
+  data_table <- tags$table(
+    class = "grid-table grid-table-inner",
+    tags$tbody(
+      lapply(seq_len(n), function(i) {
+        tags$tr(
+          lapply(seq_len(n), function(j) {
+            border_class <- snail_cell_border_classes(i, j, n)
+            tags$td(
+              class = if (border_class == "") NULL else border_class,
+              cell_input(i, j)
+            )
+          })
+        )
+      })
+    )
+  )
+
+  array_box_class <- "snail-array-box snail-array-box-even"
+
+  div(
+    class = "snail-grid-layout",
+    style = sprintf("--snail-cols: %d; --snail-rows: %d;", n, n),
+    div(class = "snail-corner"),
+    col_headers,
+    row_headers,
+    div(class = array_box_class, data_table)
+  )
+}
 
 ui <- fluidPage(
   tags$head(
@@ -27,6 +115,12 @@ ui <- fluidPage(
           max = 12,
           step = 1
         ),
+        radioButtons(
+          "snail_method",
+          label = "Build RCLS with Snail Method?",
+          choices = c("No" = "no", "Yes" = "yes"),
+          selected = "no"
+        ),
         actionButton("reset", "Reset grid", class = "btn-secondary")
       )
     ),
@@ -38,13 +132,27 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   reset_counter <- reactiveVal(0L)
+  grid_snapshot <- reactiveVal(NULL)
+  is_syncing <- reactiveVal(FALSE)
 
   observeEvent(input$reset, {
     reset_counter(reset_counter() + 1L)
+    grid_snapshot(NULL)
   })
 
   observeEvent(input$n, {
     reset_counter(reset_counter() + 1L)
+    grid_snapshot(NULL)
+  }, ignoreInit = TRUE)
+
+  observeEvent(input$snail_method, {
+    reset_counter(reset_counter() + 1L)
+    grid_snapshot(NULL)
+  }, ignoreInit = TRUE)
+
+  observeEvent(reset_counter(), {
+    grid_snapshot(NULL)
+    is_syncing(FALSE)
   }, ignoreInit = TRUE)
 
   output$grid <- renderUI({
@@ -52,38 +160,91 @@ server <- function(input, output, session) {
     reset_counter()
     req(n)
 
-    tags$table(
-      class = "grid-table",
-      tags$thead(
-        tags$tr(
-          tags$th(""),
-          lapply(seq_len(n), function(j) tags$th(j))
-        )
-      ),
-      tags$tbody(
-        lapply(seq_len(n), function(i) {
-          tags$tr(
-            tags$th(i),
-            lapply(seq_len(n), function(j) {
-              tags$td(
-                textInput(
-                  inputId = paste0("cell_", i, "_", j),
-                  label = NULL,
-                  value = "",
-                  width = "3em"
-                )
-              )
-            })
-          )
-        })
-      )
-    )
+    if (identical(input$snail_method, "yes")) {
+      snail_grid(n)
+    } else {
+      classic_grid(n)
+    }
   })
 
   validation <- reactive({
     n <- input$n
     req(n)
-    validate_from_inputs(input, n)
+    snail_mode <- identical(input$snail_method, "yes")
+    validate_from_inputs(input, n, snail_mode = snail_mode)
+  })
+
+  observe({
+    if (!identical(input$snail_method, "yes")) {
+      return()
+    }
+
+    n <- input$n
+    req(n)
+
+    if (isTRUE(is_syncing())) {
+      return()
+    }
+
+    current <- read_grid_inputs(input, n)
+    previous <- grid_snapshot()
+
+    if (is.null(previous)) {
+      grid_snapshot(current)
+      return()
+    }
+
+    if (identical(current, previous)) {
+      return()
+    }
+
+    diff_cells <- which(current != previous, arr.ind = TRUE)
+    if (nrow(diff_cells) == 0L) {
+      return()
+    }
+
+    # Ignore batched input updates from our own mirror sync; catch snapshot up.
+    if (nrow(diff_cells) > 1L) {
+      grid_snapshot(current)
+      return()
+    }
+
+    source_row <- diff_cells[1, 1]
+    source_col <- diff_cells[1, 2]
+    new_value <- current[source_row, source_col]
+    mirrors <- snail_mirror_cells(n, source_row, source_col)
+
+    if (nrow(mirrors) == 0L) {
+      grid_snapshot(current)
+      return()
+    }
+
+    is_syncing(TRUE)
+    did_update <- FALSE
+    for (k in seq_len(nrow(mirrors))) {
+      row_i <- mirrors[k, 1]
+      col_j <- mirrors[k, 2]
+      if (identical(current[row_i, col_j], new_value)) {
+        next
+      }
+      updateTextInput(
+        session,
+        inputId = paste0("cell_", row_i, "_", col_j),
+        value = new_value
+      )
+      did_update <- TRUE
+    }
+
+    finish_sync <- function() {
+      grid_snapshot(isolate(read_grid_inputs(input, n)))
+      is_syncing(FALSE)
+    }
+
+    if (did_update) {
+      session$onFlushed(finish_sync, once = TRUE)
+    } else {
+      finish_sync()
+    }
   })
 
   output$background_style <- renderUI({
@@ -94,12 +255,19 @@ server <- function(input, output, session) {
 
   output$info_banner <- renderUI({
     result <- validation()
-    c1_msgs <- result$info[startsWith(result$info, "C1:")]
-    if (length(c1_msgs) == 0L) {
+    banner_msgs <- result$info[
+      startsWith(result$info, "C1:") | startsWith(result$info, "D1:")
+    ]
+    if (length(banner_msgs) == 0L) {
       return(NULL)
     }
-    banners <- lapply(c1_msgs, function(msg) {
-      div(class = "info-banner warning", msg)
+    banners <- lapply(banner_msgs, function(msg) {
+      class_name <- if (startsWith(msg, "D1:")) {
+        "info-banner conjecture"
+      } else {
+        "info-banner warning"
+      }
+      div(class = class_name, msg)
     })
     do.call(tagList, banners)
   })

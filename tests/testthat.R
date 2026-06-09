@@ -48,4 +48,27 @@ if (requireNamespace("testthat", quietly = TRUE)) {
     testthat::expect_true(result$ok)
     testthat::expect_match(result$info[1], "C1:")
   })
+
+  testthat::test_that("snail_mode FALSE does not show D1 for odd n", {
+    mat <- matrix(NA_integer_, 5, 5)
+    result <- validate_partial_rcls(mat, 5, snail_mode = FALSE)
+    d1 <- result$info[startsWith(result$info, "D1:")]
+    testthat::expect_length(d1, 0)
+  })
+
+  testthat::test_that("snail_mode TRUE shows D1 for odd n without violation", {
+    mat <- matrix(NA_integer_, 5, 5)
+    result <- validate_partial_rcls(mat, 5, snail_mode = TRUE)
+    testthat::expect_true(result$ok)
+    d1 <- result$info[startsWith(result$info, "D1:")]
+    testthat::expect_length(d1, 1)
+    testthat::expect_match(d1[[1]], "Dr. Groves Conjecture")
+  })
+
+  testthat::test_that("snail_mode TRUE does not show D1 for even n", {
+    mat <- matrix(NA_integer_, 6, 6)
+    result <- validate_partial_rcls(mat, 6, snail_mode = TRUE)
+    d1 <- result$info[startsWith(result$info, "D1:")]
+    testthat::expect_length(d1, 0)
+  })
 }

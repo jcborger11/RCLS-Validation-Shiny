@@ -44,7 +44,7 @@ matrix_from_inputs <- function(input, n) {
   list(matrix = mat, invalid_cells = invalid_cells)
 }
 
-validate_partial_rcls <- function(mat, n) {
+validate_partial_rcls <- function(mat, n, snail_mode = FALSE) {
   violations <- character()
   info <- character()
 
@@ -192,6 +192,14 @@ validate_partial_rcls <- function(mat, n) {
     )
   }
 
+  # D1: odd-order snail impossible (informational, snail mode only)
+  if (isTRUE(snail_mode) && n %% 2L == 1L) {
+    info <- c(
+      info,
+      "D1: No odd-order snail exists (Dr. Groves Conjecture). You can still explore, but a complete odd-order snail is impossible."
+    )
+  }
+
   ok <- length(violations) == 0L
   full_rcls <- NA
 
@@ -236,9 +244,9 @@ validate_partial_rcls <- function(mat, n) {
   )
 }
 
-validate_from_inputs <- function(input, n, invalid_cells = list()) {
+validate_from_inputs <- function(input, n, snail_mode = FALSE, invalid_cells = list()) {
   parsed <- matrix_from_inputs(input, n)
-  result <- validate_partial_rcls(parsed$matrix, n)
+  result <- validate_partial_rcls(parsed$matrix, n, snail_mode = snail_mode)
 
   for (cell in parsed$invalid_cells) {
     result$violations <- c(

@@ -54,6 +54,22 @@ cd "/Users/johnb/Documents/Cursor Files/Latin Squares/rcls-shiny" && Rscript tes
 
 Background turns light red when any A/B check fails. Footer shows the first violation (+ count of others).
 
+## Snail Method
+
+Under **Order n**, choose **Build RCLS with Snail Method?** (Yes/No, default **No**).
+
+| Setting | Behavior |
+|---------|----------|
+| **No** | Classic grid layout and validation only (A/B/C tiers). |
+| **Yes** | Concentric black boxes: even n uses 2×2 kernel + frames 4, 6, …, n; odd n uses 1×1 center kernel + frames 3, 5, …, n. **Autofill:** editing a kernel/frame cell mirrors to linked positions (same snail symmetry on each shell). D1 banner still notes odd snails cannot exist (Dr. Groves Conjecture). |
+| **Yes + odd n** | **D1** informational banner: no odd-order snail exists (Dr. Groves Conjecture). Does not turn the background red. |
+
+Switching Snail Method or changing n resets the grid.
+
+| Tier | Check |
+|------|--------|
+| D1 | Info banner when Snail Method = Yes and n is odd (Dr. Groves Conjecture) |
+
 ## Deploy to shinyapps.io
 
 1. Create an account at [shinyapps.io](https://www.shinyapps.io/).
