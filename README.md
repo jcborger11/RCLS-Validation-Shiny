@@ -33,6 +33,12 @@ Or from terminal:
 cd rcls-shiny && Rscript -e 'shiny::runApp(".")'
 ```
 
+## Save grid
+
+Click **Save grid** in the sidebar to download a PNG of what you see on screen (info banners, grid, and status footer). The browser captures the grid from the page and saves the file (usually to **Downloads**, or via a Save As dialog depending on browser settings). The server never writes to folders on your computer — the same pattern works locally and on [shinyapps.io](https://john-borger.shinyapps.io/rcls-validator/).
+
+This is a DOM screenshot (via html2canvas), not a server redraw, so autofill and mirror values match the interactive grid exactly.
+
 ## Run tests
 
 ```bash

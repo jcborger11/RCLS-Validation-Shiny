@@ -93,6 +93,8 @@ snail_grid <- function(n) {
 ui <- fluidPage(
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
+    tags$script(src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"),
+    tags$script(src = "grid_capture.js"),
     uiOutput("background_style")
   ),
   div(
@@ -130,12 +132,17 @@ ui <- fluidPage(
             selected = "no"
           )
         ),
-        actionButton("reset", "Reset grid", class = "btn-secondary")
+        actionButton("reset", "Reset grid", class = "btn-secondary"),
+        actionButton("save_grid", "Save grid", class = "btn-secondary")
       )
     ),
-    uiOutput("info_banner"),
-    uiOutput("grid"),
-    uiOutput("status_footer")
+    div(
+      id = "grid_capture",
+      class = "grid-capture-area",
+      uiOutput("info_banner"),
+      div(id = "grid", uiOutput("grid_ui")),
+      uiOutput("status_footer")
+    )
   )
 )
 
@@ -228,7 +235,7 @@ server <- function(input, output, session) {
     is_syncing(FALSE)
   }, ignoreInit = TRUE)
 
-  output$grid <- renderUI({
+  output$grid_ui <- renderUI({
     n <- input$n
     reset_counter()
     req(n)

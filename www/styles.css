@@ -80,6 +80,24 @@ body {
   margin-top: 0.5rem;
 }
 
+.grid-capture-area {
+  width: fit-content;
+  max-width: 100%;
+  background-color: #ffffff;
+  padding: 0.75rem;
+  border-radius: 0.35rem;
+}
+
+.grid-capture-value {
+  display: inline-block;
+  min-width: 3em;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111111;
+  vertical-align: middle;
+}
+
 .snail-grid-layout {
   display: grid;
   grid-template-columns: auto auto;
