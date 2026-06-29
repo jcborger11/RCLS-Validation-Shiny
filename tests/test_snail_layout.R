@@ -1,4 +1,5 @@
 source("R/snail_layout.R", local = TRUE)
+source("R/snail_autofill.R", local = TRUE)
 
 if (requireNamespace("testthat", quietly = TRUE)) {
   testthat::test_that("shell sizes for even n", {

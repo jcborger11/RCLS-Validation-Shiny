@@ -63,6 +63,7 @@ Under **Order n**, choose **Build RCLS with Snail Method?** (Yes/No, default **N
 | **No** | Classic grid layout and validation only (A/B/C tiers). |
 | **Yes** | Concentric black boxes: even n uses 2×2 kernel + frames 4, 6, …, n; odd n uses 1×1 center kernel + frames 3, 5, …, n. **Autofill:** editing a kernel/frame cell mirrors to linked positions (same snail symmetry on each shell). D1 banner still notes odd snails cannot exist (Dr. Groves Conjecture). |
 | **Yes + odd n** | **D1** informational banner: no odd-order snail exists (Dr. Groves Conjecture). Does not turn the background red. |
+| **Yes + n ≡ 2 (mod 4)** | **WLOG Upper V** (Yes/No, default **No**): when **Yes**, autofills 1..n along the upper-V path (main diagonal top-left → center, then anti-diagonal center → top-right). Switching to **No** resets the grid. |
 
 Switching Snail Method or changing n resets the grid.
 

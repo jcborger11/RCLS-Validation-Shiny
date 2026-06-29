@@ -107,3 +107,15 @@ snail_shell_label <- function(n, shell_size) {
 snail_center_cell <- function(n) {
   c((n + 1L) %/% 2L, (n + 1L) %/% 2L)
 }
+
+# Upper-V autofill positions for n ≡ 2 (mod 4): main diagonal then anti-diagonal (1-based).
+snail_upper_v_cells <- function(n) {
+  if (n %% 4L != 2L) {
+    return(matrix(nrow = 0, ncol = 3))
+  }
+
+  half <- n %/% 2L
+  rows <- c(seq_len(half), n - seq(half + 1L, n) + 1L)
+  cols <- seq_len(n)
+  cbind(row = rows, col = cols, value = seq_len(n))
+}

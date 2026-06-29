@@ -121,6 +121,15 @@ ui <- fluidPage(
           choices = c("No" = "no", "Yes" = "yes"),
           selected = "no"
         ),
+        conditionalPanel(
+          condition = "input.snail_method == 'yes' && (parseInt(input.n) % 4 == 2)",
+          radioButtons(
+            "wlog_upper_v",
+            label = "WLOG Upper V",
+            choices = c("No" = "no", "Yes" = "yes"),
+            selected = "no"
+          )
+        ),
         actionButton("reset", "Reset grid", class = "btn-secondary")
       )
     ),
@@ -140,14 +149,77 @@ server <- function(input, output, session) {
     grid_snapshot(NULL)
   })
 
+  apply_upper_v_fill <- function(n) {
+    fills <- snail_upper_v_cells(n)
+    if (nrow(fills) == 0L) {
+      return()
+    }
+
+    is_syncing(TRUE)
+    grid_snapshot(NULL)
+    for (k in seq_len(nrow(fills))) {
+      updateTextInput(
+        session,
+        inputId = paste0("cell_", fills[k, 1], "_", fills[k, 2]),
+        value = as.character(fills[k, 3])
+      )
+    }
+
+    session$onFlushed(function() {
+      if (!identical(isolate(input$n), n)) {
+        is_syncing(FALSE)
+        return()
+      }
+      grid_snapshot(isolate(read_grid_inputs(input, n)))
+      is_syncing(FALSE)
+    }, once = TRUE)
+  }
+
+  schedule_upper_v_fill <- function() {
+    snail <- isolate(input$snail_method)
+    wlog <- isolate(input$wlog_upper_v)
+    n <- isolate(input$n)
+    if (
+      !identical(snail, "yes") ||
+        !identical(wlog, "yes") ||
+        is.null(n) ||
+        n %% 4L != 2L
+    ) {
+      return()
+    }
+    session$onFlushed(function() {
+      if (!identical(isolate(input$n), n)) {
+        return()
+      }
+      apply_upper_v_fill(n)
+    }, once = TRUE)
+  }
+
   observeEvent(input$n, {
+    n <- input$n
+    if (!is.null(n) && n %% 4L != 2L && identical(input$wlog_upper_v, "yes")) {
+      updateRadioButtons(session, "wlog_upper_v", selected = "no")
+    }
+    reset_counter(reset_counter() + 1L)
+    grid_snapshot(NULL)
+    schedule_upper_v_fill()
+  }, ignoreInit = TRUE)
+
+  observeEvent(input$snail_method, {
+    if (!identical(input$snail_method, "yes") && identical(input$wlog_upper_v, "yes")) {
+      updateRadioButtons(session, "wlog_upper_v", selected = "no")
+    }
     reset_counter(reset_counter() + 1L)
     grid_snapshot(NULL)
   }, ignoreInit = TRUE)
 
-  observeEvent(input$snail_method, {
-    reset_counter(reset_counter() + 1L)
-    grid_snapshot(NULL)
+  observeEvent(input$wlog_upper_v, {
+    if (identical(input$wlog_upper_v, "yes")) {
+      schedule_upper_v_fill()
+    } else {
+      reset_counter(reset_counter() + 1L)
+      grid_snapshot(NULL)
+    }
   }, ignoreInit = TRUE)
 
   observeEvent(reset_counter(), {
@@ -198,6 +270,11 @@ server <- function(input, output, session) {
       return()
     }
 
+    if (!identical(dim(current), dim(previous))) {
+      grid_snapshot(current)
+      return()
+    }
+
     diff_cells <- which(current != previous, arr.ind = TRUE)
     if (nrow(diff_cells) == 0L) {
       return()
@@ -236,6 +313,11 @@ server <- function(input, output, session) {
     }
 
     finish_sync <- function() {
+      current_n <- isolate(input$n)
+      if (!identical(current_n, n)) {
+        is_syncing(FALSE)
+        return()
+      }
       grid_snapshot(isolate(read_grid_inputs(input, n)))
       is_syncing(FALSE)
     }
