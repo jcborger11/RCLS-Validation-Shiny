@@ -119,3 +119,35 @@ snail_upper_v_cells <- function(n) {
   cols <- seq_len(n)
   cbind(row = rows, col = cols, value = seq_len(n))
 }
+
+# Upper-V seed path expanded through snail shell mirroring (1-based).
+snail_upper_v_fill_cells <- function(n) {
+  seeds <- snail_upper_v_cells(n)
+  if (nrow(seeds) == 0L) {
+    return(matrix(nrow = 0, ncol = 3))
+  }
+
+  filled <- matrix(NA_integer_, n, n)
+  for (k in seq_len(nrow(seeds))) {
+    r <- seeds[k, 1L]
+    c <- seeds[k, 2L]
+    v <- seeds[k, 3L]
+    mirrors <- snail_mirror_cells(n, r, c)
+    cells <- rbind(c(r, c), mirrors)
+    for (m in seq_len(nrow(cells))) {
+      ri <- cells[m, 1L]
+      cj <- cells[m, 2L]
+      existing <- filled[ri, cj]
+      if (!is.na(existing) && existing != v) {
+        stop(sprintf(
+          "Upper-V mirror conflict at (%d,%d): %d vs %d",
+          ri, cj, existing, v
+        ))
+      }
+      filled[ri, cj] <- v
+    }
+  }
+
+  idx <- which(!is.na(filled), arr.ind = TRUE)
+  cbind(row = idx[, 1L], col = idx[, 2L], value = filled[idx])
+}

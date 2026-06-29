@@ -1,3 +1,4 @@
+source("R/snail_layout.R", local = TRUE)
 source("R/snail_autofill.R", local = TRUE)
 
 if (requireNamespace("testthat", quietly = TRUE)) {
@@ -34,5 +35,43 @@ if (requireNamespace("testthat", quietly = TRUE)) {
   testthat::test_that("ineligible n returns empty matrix", {
     testthat::expect_equal(nrow(snail_upper_v_cells(4)), 0L)
     testthat::expect_equal(nrow(snail_upper_v_cells(8)), 0L)
+    testthat::expect_equal(nrow(snail_upper_v_fill_cells(4)), 0L)
+    testthat::expect_equal(nrow(snail_upper_v_fill_cells(8)), 0L)
+  })
+
+  testthat::test_that("n=6 upper V fill propagates through snail mirrors", {
+    fills <- snail_upper_v_fill_cells(6)
+    testthat::expect_equal(nrow(fills), 12L)
+
+    mat <- matrix("", 6, 6)
+    for (k in seq_len(nrow(fills))) {
+      mat[fills[k, 1], fills[k, 2]] <- as.character(fills[k, 3])
+    }
+    expected <- matrix(
+      c(
+        "1", "", "", "", "", "6",
+        "", "2", "", "", "5", "",
+        "", "", "3", "4", "", "",
+        "", "", "4", "3", "", "",
+        "", "5", "", "", "2", "",
+        "6", "", "", "", "", "1"
+      ),
+      nrow = 6,
+      byrow = TRUE
+    )
+    testthat::expect_equal(mat, expected)
+  })
+
+  testthat::test_that("n=10 upper V fill propagates through snail mirrors", {
+    fills <- snail_upper_v_fill_cells(10)
+    testthat::expect_equal(nrow(fills), 20L)
+    testthat::expect_equal(
+      sort(fills[fills[, 3] == 5, 1]),
+      c(5L, 6L)
+    )
+    testthat::expect_equal(
+      sort(fills[fills[, 3] == 5, 2]),
+      c(5L, 6L)
+    )
   })
 }

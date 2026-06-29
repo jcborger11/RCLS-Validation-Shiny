@@ -147,10 +147,11 @@ server <- function(input, output, session) {
   observeEvent(input$reset, {
     reset_counter(reset_counter() + 1L)
     grid_snapshot(NULL)
+    schedule_upper_v_fill()
   })
 
   apply_upper_v_fill <- function(n) {
-    fills <- snail_upper_v_cells(n)
+    fills <- snail_upper_v_fill_cells(n)
     if (nrow(fills) == 0L) {
       return()
     }
