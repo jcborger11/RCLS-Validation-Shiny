@@ -1,0 +1,535 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[lmargin=1in,rmargin=1in,tmargin=1in,bmargin=1in]{geometry}
+\usepackage{wrapfig}
+\usepackage{colortbl}
+% -------------------
+% Packages
+% -------------------
+\usepackage{
+	amsmath,			% Math Environments
+	amssymb,			% Extended Symbols
+	enumerate,		    % Enumerate Environments
+	graphicx,			% Include Images
+	lastpage,			% Reference Lastpage
+	multicol,			% Use Multi-columns
+	multirow,			% Use Multi-rows
+    ulem,                % Make underlines
+    subcaption,
+    longtable,
+    booktabs,
+    float,
+    array,
+    calc,
+    charter,
+    hyperref,
+    pgfplots,
+    xcolor
+}
+
+% -------------------
+% Font
+% -------------------
+\usepackage[en-US]{datetime2}
+\newlength{\mycellsize} % define a custom length for cell size
+\setlength{\mycellsize}{1.5cm} % set the cell size to 2cm
+\usepackage[T1]{fontenc}
+\pgfplotsset{compat=1.18}
+% -------------------
+% Heading Commands
+% -------------------
+\newcommand{\class}{MA205: Multivariable Calculus}
+\newcommand{\term}{AY27-1}
+\newcommand{\instructor}{MAJ John Borger (TH255)}
+\newcommand{\head}[1]{%
+\thispagestyle{empty} % Ensures no header or footer
+\vspace*{-0.5in}
+\noindent
+\begin{tabular}{@{} m{1.5cm}@{} m{3cm}@{} c@{}}
+\includegraphics[height=1.5cm]{Images/Mule.png} & &
+
+\begin{tabular}{@{}l@{}}
+  \textbf{Name:} \makebox[10.5cm]{\hrulefill} \\
+  \textbf{#1} %\textbf{August 20, 2024}
+  \\
+  \textbf{\class} \\
+  \textbf{Instructor: \instructor, \term} \\
+\end{tabular}
+\end{tabular} \\
+\rule[2ex]{\textwidth}{2pt} %
+\vspace*{-0.8cm}
+}
+
+% -------------------
+% Commands
+% -------------------
+\newcommand{\prob}{\noindent\textbf{Problem. }}
+\newcounter{problem}
+\newcommand{\problem}{
+	\stepcounter{problem}%
+	\noindent \textbf{Problem \theproblem. }%
+}
+\newcommand{\pointproblem}[1]{
+	\stepcounter{problem}%
+	\noindent \textbf{Problem \theproblem.} (#1 points)\,%
+}
+\newcommand{\pspace}{\par\vspace{\baselineskip}}
+\newcommand{\ds}{\displaystyle}
+
+
+% -------------------
+% Header & Footer
+% -------------------
+\usepackage{fancyhdr}
+
+\fancypagestyle{pages}{
+	%Headers
+	\fancyhead[L]{}
+	\fancyhead[C]{}
+	\fancyhead[R]{}
+\renewcommand{\headrulewidth}{0pt}
+	%Footers
+	\fancyfoot[L]{}
+	\fancyfoot[C]{}
+	\fancyfoot[R]{\thepage}
+\renewcommand{\footrulewidth}{0.0pt}
+}
+\headheight=0pt
+\footskip=14pt
+
+\pagestyle{pages}
+
+% Let's me turn on and off showing solutions
+% Instructor copy: show solutions in red. For a student handout, comment the next line
+% and uncomment \showsolutionsfalse.
+\newif\ifshowsolutions
+\showsolutionstrue
+%\showsolutionsfalse
+
+% Solution macro: red text only when \ifshowsolutions is true
+\newcommand{\sol}[1]{%
+\ifshowsolutions
+\par\vspace{0.3em}{\color{red}#1}\par
+\fi
+}
+
+
+% -------------------
+% Content
+% -------------------
+\begin{document}
+ 
+\head{Lesson 32 \& 33 Applications of Double Integrals}
+
+\noindent\textbf{Learning Objectives:}
+\vspace{-2mm}
+\begin{enumerate}
+\setlength{\itemsep}{0pt} % Adjusts the space between items
+\setlength{\parskip}{0pt} % Adjusts the space between paragraphs
+
+    \item Determine the mass and center of mass of a lamina of variable density using double integrals.
+    \item Determine the probability of an event and the expected values of a joint density function using double integrals.
+
+\end{enumerate}
+
+
+
+\hrule \vspace{0.1cm}
+\noindent \textbf{Reading:} Supplemental Reading : \S 15.4
+\vspace{0.1cm}
+\hrule
+
+\section{Warm Up}
+
+
+    \subsection{}
+    
+    Evaluate the integral $\iint_D e^{-x^2-y^2} \, dA$ where $D$ is the region bounded by the semicircle $x=+\sqrt{4-y^2}$ and $x=0.$
+
+\sol{%
+\textbf{Solution.}
+The curve $x=\sqrt{4-y^2}$ is the right half of $x^2+y^2=4$, so $D$ is the right semicircle of radius $2$ centered at the origin.\\[0.4em]
+Switch to polar: $x=r\cos\theta$, $y=r\sin\theta$, $dA=r\,dr\,d\theta$.\\
+Then $e^{-x^2-y^2}=e^{-r^2}$, with $0\leq r\leq 2$ and $-\frac{\pi}{2}\leq\theta\leq\frac{\pi}{2}$.
+\begin{align*}
+\iint_D e^{-x^2-y^2}\,dA
+&= \int_{-\pi/2}^{\pi/2}\int_0^{2} e^{-r^2}\,r\,dr\,d\theta.
+\end{align*}
+Inner integral: let $u=r^2$, so $du=2r\,dr$.
+\begin{align*}
+\int_0^{2} e^{-r^2}r\,dr
+&= \frac{1}{2}\int_0^{4} e^{-u}\,du
+= \frac{1}{2}\bigl[-e^{-u}\bigr]_0^{4}
+= \frac{1}{2}\bigl(1-e^{-4}\bigr).
+\end{align*}
+Outer integral:
+\begin{align*}
+\int_{-\pi/2}^{\pi/2}\frac{1}{2}\bigl(1-e^{-4}\bigr)\,d\theta
+&= \frac{1}{2}\bigl(1-e^{-4}\bigr)\cdot\pi
+= \frac{\pi}{2}\bigl(1-e^{-4}\bigr).
+\end{align*}
+}
+
+\vfill 
+
+\pagebreak
+
+
+\subsection{}
+
+Convert to polar coordinates and solve.
+        $\ds \int_0^{1/2}\int_{\sqrt{3}y}^{\sqrt{1-y^2}} xy^2 \, dx\, dy$.
+
+\sol{%
+\textbf{Solution.}
+Sketch the region: the left boundary $x=\sqrt{3}y$ is the ray $\theta=\pi/6$, and the right boundary $x=\sqrt{1-y^2}$ is the unit circle $r=1$. With $y$ from $0$ to $1/2$, we have $0\leq\theta\leq\pi/6$ and $0\leq r\leq 1$.\\[0.4em]
+In polar: $x=r\cos\theta$, $y=r\sin\theta$, $dA=r\,dr\,d\theta$, so
+\begin{align*}
+xy^2\,dA &= (r\cos\theta)(r\sin\theta)^2\cdot r\,dr\,d\theta = r^4\cos\theta\sin^2\theta\,dr\,d\theta.
+\end{align*}
+\begin{align*}
+\int_0^{\pi/6}\int_0^{1} r^4\cos\theta\sin^2\theta\,dr\,d\theta
+&= \int_0^{\pi/6}\cos\theta\sin^2\theta\Bigl[\frac{r^5}{5}\Bigr]_0^{1}\,d\theta
+= \frac{1}{5}\int_0^{\pi/6}\cos\theta\sin^2\theta\,d\theta.
+\end{align*}
+Let $u=\sin\theta$, $du=\cos\theta\,d\theta$. When $\theta=0$, $u=0$; when $\theta=\pi/6$, $u=1/2$.
+\begin{align*}
+\frac{1}{5}\int_0^{1/2} u^2\,du
+&= \frac{1}{5}\cdot\frac{u^3}{3}\Big|_0^{1/2}
+= \frac{1}{15}\cdot\frac{1}{8}
+= \frac{1}{120}.
+\end{align*}
+}
+
+\vfill 
+
+
+\subsection{}
+
+Find the area enclosed by one loop of the four-leaved rose $r=\cos(2\theta)$ shown below.\\
+
+    \includegraphics[scale=1]{Images/L34 4LeafClover.png}
+
+\sol{%
+\textbf{Solution.}
+One loop of $r=\cos(2\theta)$ occurs where $\cos(2\theta)\geq 0$ and $r$ returns to $0$, namely $-\pi/4\leq\theta\leq\pi/4$.
+\begin{align*}
+A &= \frac{1}{2}\int_{-\pi/4}^{\pi/4} r^2\,d\theta
+= \frac{1}{2}\int_{-\pi/4}^{\pi/4}\cos^2(2\theta)\,d\theta
+= \frac{1}{2}\int_{-\pi/4}^{\pi/4}\frac{1+\cos(4\theta)}{2}\,d\theta
+= \frac{1}{4}\int_{-\pi/4}^{\pi/4}\bigl(1+\cos(4\theta)\bigr)\,d\theta.
+\end{align*}
+\begin{align*}
+A &= \frac{1}{4}\Bigl[\theta+\frac{1}{4}\sin(4\theta)\Bigr]_{-\pi/4}^{\pi/4}
+= \frac{1}{4}\Bigl(\frac{\pi}{4}-\Bigl(-\frac{\pi}{4}\Bigr)\Bigr)
+= \frac{1}{4}\cdot\frac{\pi}{2}
+= \frac{\pi}{8}.
+\end{align*}
+}
+
+\vfill 
+
+\pagebreak 
+
+
+ \section{Probability}
+Suppose two numbers $x$ and $y$ are randomly generated by a computer such that ${0\leq x\leq 1}$ and $0\leq y\leq 2$. The joint density function is given below.
+$$ f(x,y) = \begin{cases}
+Cx(1+y)\qquad \text{ if $ 0\leq x\leq 1$ and $ 0\leq y\leq 2$}\\
+0 \qquad\qquad\qquad\qquad \text{ otherwise} \end{cases} $$
+ 
+ 
+ \begin{enumerate}[a)]
+\item Find the value of $C$ such that $f(x,y)$ is a joint density function.
+\sol{%
+\textbf{Solution.}
+A joint density must satisfy $\iint_{\mathbb{R}^2} f(x,y)\,dA=1$:
+\begin{align*}
+\int_0^1\int_0^2 Cx(1+y)\,dy\,dx
+&= C\int_0^1 x\,dx\int_0^2(1+y)\,dy
+= C\cdot\frac{1}{2}\cdot\Bigl[y+\frac{y^2}{2}\Bigr]_0^2
+= C\cdot\frac{1}{2}\cdot 4
+= 2C.
+\end{align*}
+Set $2C=1$, so $\displaystyle C=\frac{1}{2}$.
+}
+\vfill
+\item Using your $C$ value from part $a)$, find $P( .5 \leq Y\leq 1.5)$.
+\sol{%
+\textbf{Solution.}
+With $C=1/2$,
+\begin{align*}
+P(0.5\leq Y\leq 1.5)
+&= \int_0^1\int_{0.5}^{1.5}\frac{1}{2}x(1+y)\,dy\,dx
+= \frac{1}{2}\int_0^1 x\,dx\int_{0.5}^{1.5}(1+y)\,dy.
+\end{align*}
+\begin{align*}
+\int_{0.5}^{1.5}(1+y)\,dy
+&= \Bigl[y+\frac{y^2}{2}\Bigr]_{1/2}^{3/2}
+= \Bigl(\frac{3}{2}+\frac{9}{8}\Bigr)-\Bigl(\frac{1}{2}+\frac{1}{8}\Bigr)
+= \frac{21}{8}-\frac{5}{8}
+= 2.
+\end{align*}
+\begin{align*}
+P &= \frac{1}{2}\cdot\frac{1}{2}\cdot 2 = \frac{1}{2}.
+\end{align*}
+}
+\vfill
+\item What is the probability that the sum of $x$ and $y$ is less than 1?
+\sol{%
+\textbf{Solution.}
+We want $P(X+Y<1)$ over the rectangle $[0,1]\times[0,2]$. That region is $0\leq x\leq 1$, $0\leq y\leq 1-x$ (since $1-x\leq 1<2$).
+\begin{align*}
+P(X+Y<1)
+&= \int_0^1\int_0^{1-x}\frac{1}{2}x(1+y)\,dy\,dx
+= \frac{1}{2}\int_0^1 x\Bigl[y+\frac{y^2}{2}\Bigr]_0^{1-x}\,dx \\
+&= \frac{1}{2}\int_0^1 x\Bigl((1-x)+\frac{(1-x)^2}{2}\Bigr)\,dx
+= \frac{1}{2}\int_0^1 x\cdot\frac{2(1-x)+(1-x)^2}{2}\,dx \\
+&= \frac{1}{4}\int_0^1 x\bigl(2-2x+1-2x+x^2\bigr)\,dx
+= \frac{1}{4}\int_0^1\bigl(3x-4x^2+x^3\bigr)\,dx \\
+&= \frac{1}{4}\Bigl[\frac{3}{2}x^2-\frac{4}{3}x^3+\frac{1}{4}x^4\Bigr]_0^1
+= \frac{1}{4}\Bigl(\frac{3}{2}-\frac{4}{3}+\frac{1}{4}\Bigr)
+= \frac{1}{4}\cdot\frac{5}{12}
+= \frac{5}{48}.
+\end{align*}
+}
+\end{enumerate}
+
+\vfill
+
+
+\newpage
+
+\section{Density and Center of Mass}
+\subsection{Density ``Understand''}
+
+Let $\rho $ be density, $V$ be volume, and $m$ be mass.
+\begin{align*}
+    \rho= \frac{m}{V} && m=\rho V
+\end{align*}
+
+\vfill 
+\sol{%
+For a planar lamina with variable density $\rho(x,y)$,
+\begin{align*}
+    m=\iint_D \rho(x,y) \, dA.
+\end{align*}
+}
+
+
+\subsection{Example ``Do''}
+Find the mass of a triangular lamina with vertices $(0,0),(1,0)$ and $(0,2)$ and density function $\rho(x,y)=1+3x+y$.
+
+\sol{%
+\textbf{Solution.}
+The hypotenuse from $(1,0)$ to $(0,2)$ is $y=2-2x$. So $0\leq x\leq 1$, $0\leq y\leq 2-2x$.
+\begin{align*}
+m &= \int_0^1\int_0^{2-2x}(1+3x+y)\,dy\,dx
+= \int_0^1\Bigl[y+3xy+\frac{y^2}{2}\Bigr]_0^{2-2x}\,dx.
+\end{align*}
+Let $h=2-2x$. Then
+\begin{align*}
+y+3xy+\frac{y^2}{2}\Big|_0^{h}
+&= h+3xh+\frac{h^2}{2}
+= (2-2x)+3x(2-2x)+\frac{(2-2x)^2}{2} \\
+&= 2-2x+6x-6x^2+2-4x+2x^2
+= 4-4x^2.
+\end{align*}
+\begin{align*}
+m &= \int_0^1(4-4x^2)\,dx
+= \Bigl[4x-\frac{4x^3}{3}\Bigr]_0^1
+= 4-\frac{4}{3}
+= \frac{8}{3}.
+\end{align*}
+}
+
+\vfill 
+\pagebreak
+
+\subsection{Center of Mass ``Understand''}
+
+The \textbf{moment about the y-axis} $M_y$ measures the tendency of an object or system to rotate about the y-axis. The \textbf{moment about the x-axis} $M_x$ measures the tendency of an object or system to rotate about the x-axis.
+
+
+\begin{align*}
+    \overline{x}&=\frac{1}{m}\int\int_D \, x \, \rho(x,y) \, dA\\
+    \overline{y}&=\frac{1}{m}\int\int_D \, y \, \rho(x,y) \, dA
+\end{align*}
+
+
+\subsection{Example ``Do''}
+
+Find the center of mass of a triangular lamina with vertices $(0,0),(1,0)$ and $(0,2)$ and density function $\rho(x,y)=1+3x+y$.
+
+\sol{%
+\textbf{Solution.}
+From the previous example, $m=\dfrac{8}{3}$ and the inner integral of $\rho$ was $4-4x^2$ over $0\leq y\leq 2-2x$.
+\begin{align*}
+M_y &= \iint_D x\rho\,dA
+= \int_0^1 x(4-4x^2)\,dx
+= \int_0^1(4x-4x^3)\,dx
+= \bigl[2x^2-x^4\bigr]_0^1
+= 1,
+\end{align*}
+so $\displaystyle\overline{x}=\frac{M_y}{m}=\frac{1}{8/3}=\frac{3}{8}$.
+\begin{align*}
+M_x &= \iint_D y\rho\,dA
+= \int_0^1\int_0^{2-2x} y(1+3x+y)\,dy\,dx
+= \int_0^1\int_0^{h}(y+3xy+y^2)\,dy\,dx,
+\end{align*}
+where $h=2-2x$.
+\begin{align*}
+\Bigl[\frac{y^2}{2}+\frac{3x y^2}{2}+\frac{y^3}{3}\Bigr]_0^{h}
+&= \frac{h^2}{2}(1+3x)+\frac{h^3}{3}
+= 2(1-x)^2(1+3x)+\frac{8}{3}(1-x)^3.
+\end{align*}
+Expanding and integrating:
+\begin{align*}
+M_x &= \int_0^1\Bigl(\frac{14}{3}-6x-2x^2+\frac{10}{3}x^3\Bigr)\,dx
+= \Bigl[\frac{14}{3}x-3x^2-\frac{2}{3}x^3+\frac{5}{6}x^4\Bigr]_0^1
+= \frac{11}{6}.
+\end{align*}
+Thus $\displaystyle\overline{y}=\frac{M_x}{m}=\frac{11/6}{8/3}=\frac{11}{16}$.\\[0.4em]
+Center of mass: $\displaystyle\Bigl(\frac{3}{8},\frac{11}{16}\Bigr)$.
+}
+
+\vfill 
+
+\pagebreak
+
+\section{Practice}
+
+\subsection{}
+
+Find the mass and $\overline{y}$ of a triangular lamina with vertices $(0,1),(1,1),$ and $(1,0)$ with density function $\rho(x,y)=xy$.
+
+\sol{%
+\textbf{Solution.}
+The triangle has hypotenuse from $(0,1)$ to $(1,0)$, i.e.\ $y=1-x$. The region is $0\leq x\leq 1$, $1-x\leq y\leq 1$.
+\begin{align*}
+m &= \int_0^1\int_{1-x}^{1} xy\,dy\,dx
+= \int_0^1 x\cdot\frac{1}{2}\bigl[y^2\bigr]_{1-x}^{1}\,dx
+= \frac{1}{2}\int_0^1 x\bigl(1-(1-x)^2\bigr)\,dx \\
+&= \frac{1}{2}\int_0^1 x\bigl(2x-x^2\bigr)\,dx
+= \frac{1}{2}\int_0^1(2x^2-x^3)\,dx
+= \frac{1}{2}\Bigl[\frac{2}{3}x^3-\frac{1}{4}x^4\Bigr]_0^1
+= \frac{5}{24}.
+\end{align*}
+\begin{align*}
+M_x &= \iint_D y\cdot\rho\,dA
+= \int_0^1\int_{1-x}^{1} x y^2\,dy\,dx
+= \int_0^1 x\cdot\frac{1}{3}\bigl[y^3\bigr]_{1-x}^{1}\,dx
+= \frac{1}{3}\int_0^1 x\bigl(1-(1-x)^3\bigr)\,dx \\
+&= \frac{1}{3}\int_0^1 x(3x-3x^2+x^3)\,dx
+= \frac{1}{3}\int_0^1(3x^2-3x^3+x^4)\,dx
+= \frac{1}{3}\Bigl(1-\frac{3}{4}+\frac{1}{5}\Bigr)
+= \frac{3}{20}.
+\end{align*}
+\begin{align*}
+\overline{y} &= \frac{M_x}{m} = \frac{3/20}{5/24} = \frac{3}{20}\cdot\frac{24}{5} = \frac{18}{25}.
+\end{align*}
+So $m=\dfrac{5}{24}$ and $\overline{y}=\dfrac{18}{25}$.
+}
+
+\vfill
+
+\subsection{}%15.4 number 3
+
+Find the total mass and center of mass of the lamina that occupies the region $D$ and has the given density function $\rho$.
+\begin{align*}
+    D=\{ (x,y) \mid 1 \leq x \leq 3, 1 \leq y \leq 4\}; \rho(x,y)=ky^2
+\end{align*}
+
+\sol{%
+\textbf{Solution.}
+\begin{align*}
+m &= \int_1^3\int_1^4 ky^2\,dy\,dx
+= k\int_1^3\Bigl[\frac{y^3}{3}\Bigr]_1^4\,dx
+= k\int_1^3\frac{63}{3}\,dx
+= 21k\cdot 2
+= 42k.
+\end{align*}
+\begin{align*}
+M_y &= \iint_D x\rho\,dA
+= \int_1^3\int_1^4 xky^2\,dy\,dx
+= k\int_1^3 x\cdot 21\,dx
+= 21k\Bigl[\frac{x^2}{2}\Bigr]_1^3
+= 21k\cdot 4
+= 84k,
+\end{align*}
+so $\displaystyle\overline{x}=\frac{84k}{42k}=2$.
+\begin{align*}
+M_x &= \iint_D y\rho\,dA
+= \int_1^3\int_1^4 ky^3\,dy\,dx
+= k\int_1^3\Bigl[\frac{y^4}{4}\Bigr]_1^4\,dx
+= k\int_1^3\frac{255}{4}\,dx
+= k\cdot\frac{255}{4}\cdot 2
+= \frac{255k}{2},
+\end{align*}
+so $\displaystyle\overline{y}=\frac{255k/2}{42k}=\frac{255}{84}=\frac{85}{28}$.\\[0.4em]
+Mass $m=42k$; center of mass $\displaystyle\Bigl(2,\dfrac{85}{28}\Bigr)$.
+}
+
+\vfill
+
+\pagebreak
+\section{Harder Practice}
+
+    \subsection{} Find the center of mass of a semicircular plate with of radius $r$. The plate has constant density. %See page 563. \\
+    
+\sol{%
+\textbf{Solution.}
+Take the upper half-disk $x^2+y^2\leq r^2$, $y\geq 0$, with constant density $\rho$. By symmetry, $\overline{x}=0$.\\[0.4em]
+Mass: $m=\rho\cdot\dfrac{\pi r^2}{2}$.\\
+In polar coordinates,
+\begin{align*}
+M_x &= \iint_D y\rho\,dA
+= \rho\int_0^{\pi}\int_0^{r}(s\sin\theta)\,s\,ds\,d\theta
+= \rho\int_0^{\pi}\sin\theta\,d\theta\int_0^{r} s^2\,ds
+= \rho\cdot 2\cdot\frac{r^3}{3}
+= \frac{2\rho r^3}{3}.
+\end{align*}
+\begin{align*}
+\overline{y} &= \frac{M_x}{m}
+= \frac{2\rho r^3/3}{\rho\pi r^2/2}
+= \frac{2r^3}{3}\cdot\frac{2}{\pi r^2}
+= \frac{4r}{3\pi}.
+\end{align*}
+Center of mass: $\displaystyle\Bigl(0,\dfrac{4r}{3\pi}\Bigr)$.
+}
+
+\vfill
+
+    \subsection{} Find the center of mass of a semicircular plate whose density at any point is proportional to the distance from the center of the circle. 
+
+\sol{%
+\textbf{Solution.}
+Again take the upper half-disk of radius $r$. Density $\rho(x,y)=k\sqrt{x^2+y^2}=ks$ in polar. By symmetry, $\overline{x}=0$.
+\begin{align*}
+m &= \int_0^{\pi}\int_0^{r}(ks)\,s\,ds\,d\theta
+= k\int_0^{\pi}d\theta\int_0^{r} s^2\,ds
+= k\pi\cdot\frac{r^3}{3}
+= \frac{k\pi r^3}{3}.
+\end{align*}
+\begin{align*}
+M_x &= \iint_D y\rho\,dA
+= \int_0^{\pi}\int_0^{r}(s\sin\theta)(ks)\,s\,ds\,d\theta
+= k\int_0^{\pi}\sin\theta\,d\theta\int_0^{r} s^3\,ds
+= k\cdot 2\cdot\frac{r^4}{4}
+= \frac{k r^4}{2}.
+\end{align*}
+\begin{align*}
+\overline{y} &= \frac{M_x}{m}
+= \frac{kr^4/2}{k\pi r^3/3}
+= \frac{r^4}{2}\cdot\frac{3}{\pi r^3}
+= \frac{3r}{2\pi}.
+\end{align*}
+Center of mass: $\displaystyle\Bigl(0,\dfrac{3r}{2\pi}\Bigr)$.
+}
+
+
+\vfill
+
+
+\vspace{8mm}
+
+\end{document}
