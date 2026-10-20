@@ -1,0 +1,630 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[lmargin=1in,rmargin=1in,tmargin=1in,bmargin=1in]{geometry}
+\usepackage{wrapfig}
+\usepackage{colortbl}
+% -------------------
+% Packages
+% -------------------
+\usepackage{
+	amsmath,			% Math Environments
+	amssymb,			% Extended Symbols
+	enumerate,		    % Enumerate Environments
+	graphicx,			% Include Images
+	lastpage,			% Reference Lastpage
+	multicol,			% Use Multi-columns
+	multirow,			% Use Multi-rows
+    ulem,                % Make underlines
+    subfigure,           % Helpful for aligning plots?
+    subcaption,
+    longtable,
+    booktabs,
+    float,
+    babel,
+    multicol,
+    array,
+    calc,
+    charter,
+    hyperref,
+    pgfplots,
+    xcolor
+}
+
+% -------------------
+% Font
+% -------------------
+\usepackage[en-US]{datetime2}
+\newlength{\mycellsize} % define a custom length for cell size
+\setlength{\mycellsize}{1.5cm} % set the cell size to 2cm
+\usepackage[T1]{fontenc}
+\pgfplotsset{compat=1.18}
+% -------------------
+% Heading Commands
+% -------------------
+\newcommand{\class}{MA205: Multivariable Calculus}
+\newcommand{\term}{AY27-1}
+\newcommand{\instructor}{MAJ John Borger (TH255)}
+\newcommand{\head}[1]{%
+\thispagestyle{empty} % Ensures no header or footer
+\vspace*{-0.5in}
+\noindent
+\begin{tabular}{@{} m{1.5cm}@{} m{3cm}@{} c@{}}
+\includegraphics[height=1.5cm]{Images/Mule.png} & &
+
+\begin{tabular}{@{}l@{}}
+  \textbf{Name:} \makebox[10.5cm]{\hrulefill} \\
+  \textbf{#1} %\textbf{August 20, 2024}
+  \\
+  \textbf{\class} \\
+  \textbf{Instructor: \instructor, \term} \\
+\end{tabular}
+\end{tabular} \\
+\rule[2ex]{\textwidth}{2pt} %
+\vspace*{-0.8cm}
+}
+
+% -------------------
+% Commands
+% -------------------
+\newcommand{\prob}{\noindent\textbf{Problem. }}
+\newcounter{problem}
+\newcommand{\problem}{
+	\stepcounter{problem}%
+	\noindent \textbf{Problem \theproblem. }%
+}
+\newcommand{\pointproblem}[1]{
+	\stepcounter{problem}%
+	\noindent \textbf{Problem \theproblem.} (#1 points)\,%
+}
+\newcommand{\pspace}{\par\vspace{\baselineskip}}
+\newcommand{\ds}{\displaystyle}
+
+
+% -------------------
+% Header & Footer
+% -------------------
+\usepackage{fancyhdr}
+
+\fancypagestyle{pages}{
+	%Headers
+	\fancyhead[L]{}
+	\fancyhead[C]{}
+	\fancyhead[R]{}
+\renewcommand{\headrulewidth}{0pt}
+	%Footers
+	\fancyfoot[L]{}
+	\fancyfoot[C]{}
+	\fancyfoot[R]{\thepage}
+\renewcommand{\footrulewidth}{0.0pt}
+}
+\headheight=0pt
+\footskip=14pt
+
+\pagestyle{pages}
+
+% Instructor copy: solutions on. Student copy: \showsolutionsfalse
+\newif\ifshowsolutions
+\showsolutionstrue
+%\showsolutionsfalse
+
+\newcommand{\sol}[1]{%
+  \ifshowsolutions
+  {\color{red}#1}%
+  \fi
+}
+
+
+% -------------------
+% Content
+% -------------------
+\begin{document}
+ 
+\head{Lesson 32 \& 33 Applications of Double Integrals}
+
+\noindent\textbf{Learning Objectives:}
+\vspace{-2mm}
+\begin{enumerate}
+\setlength{\itemsep}{0pt} % Adjusts the space between items
+\setlength{\parskip}{0pt} % Adjusts the space between paragraphs
+
+    \item Determine the mass and center of mass of a lamina of variable density using double integrals.
+    \item Determine the probability of an event and the expected values of a joint density function using double integrals.
+
+\end{enumerate}
+
+
+
+\hrule \vspace{0.1cm}
+\noindent \textbf{Reading:} Supplemental Reading : \S 15.4
+\vspace{0.1cm}
+\hrule
+
+\section{Warm Up}
+
+
+    \subsection{}
+    
+    Evaluate the integral $\iint_D e^{-x^2-y^2} \, dA$ where $D$ is the region bounded by the semicircle $x=+\sqrt{4-y^2}$ and $x=0.$
+
+\sol{%
+\textbf{Solution.}
+The curves $x=0$ and $x=\sqrt{4-y^2}$ bound the \emph{right half} of the disk $x^2+y^2\le 4$ (since $x=\sqrt{4-y^2}$ is the right semicircle).
+
+\textbf{Step 1 (describe $D$ in rectangular coordinates).}
+For $-2\le y\le 2$, we have $0\le x\le \sqrt{4-y^2}$.
+
+\textbf{Step 2 (switch to polar).}
+Use $x=r\cos\theta$, $y=r\sin\theta$, $dA=r\,dr\,d\theta$, and $x^2+y^2=r^2$.
+The condition $x\ge 0$ means $\cos\theta\ge 0$, so $-\dfrac{\pi}{2}\le\theta\le\dfrac{\pi}{2}$.
+Also $0\le r\le 2$.
+\[
+\iint_D e^{-x^2-y^2}\,dA
+=\int_{-\pi/2}^{\pi/2}\int_0^2 e^{-r^2}\,r\,dr\,d\theta.
+\]
+
+\textbf{Step 3 (integrate in $r$).}
+Let $u=-r^2$, so $du=-2r\,dr$ and $r\,dr=-\dfrac{du}{2}$:
+\[
+\int_0^2 e^{-r^2}r\,dr
+=\int_0^{-4} e^u\left(-\frac{du}{2}\right)
+=\frac{1}{2}\int_{-4}^0 e^u\,du
+=\frac{1}{2}\bigl(1-e^{-4}\bigr).
+\]
+
+\textbf{Step 4 (integrate in $\theta$).}
+\[
+\int_{-\pi/2}^{\pi/2}\frac{1}{2}\bigl(1-e^{-4}\bigr)\,d\theta
+=\frac{1}{2}\bigl(1-e^{-4}\bigr)\cdot\pi
+=\boxed{\frac{\pi}{2}\bigl(1-e^{-4}\bigr)}.
+\]
+}
+
+\vfill 
+
+\pagebreak
+
+
+\subsection{}
+
+Convert to polar coordinates and solve.
+        $\ds \int_0^{1/2}\int_{\sqrt{3}y}^{\sqrt{1-y^2}} xy^2 \, dx\, dy$.
+
+\sol{%
+\textbf{Solution.}
+
+\textbf{Step 1 (identify the region).}
+For fixed $y$, $x$ runs from $\sqrt{3}\,y$ (line $x=\sqrt{3}\,y$) to $\sqrt{1-y^2}$ (circle $x^2+y^2=1$).
+With $0\le y\le \tfrac12$, this is the sector in the first quadrant between the rays $\theta=\pi/6$ and $\theta=\pi/2$ inside the unit circle.
+
+\textbf{Step 2 (polar form).}
+$x=r\cos\theta$, $y=r\sin\theta$, $xy^2=r\cos\theta\cdot r^2\sin^2\theta=r^3\cos\theta\sin^2\theta$, and $dA=r\,dr\,d\theta$.
+Bounds: $0\le r\le 1$, $\pi/6\le\theta\le\pi/2$.
+\[
+\int_{\pi/6}^{\pi/2}\int_0^1 r^4\cos\theta\sin^2\theta\,dr\,d\theta
+=\int_{\pi/6}^{\pi/2}\cos\theta\sin^2\theta\left[\frac{r^5}{5}\right]_0^1\,d\theta
+=\frac{1}{5}\int_{\pi/6}^{\pi/2}\cos\theta\sin^2\theta\,d\theta.
+\]
+
+\textbf{Step 3 (integrate in $\theta$).}
+Let $u=\sin\theta$, $du=\cos\theta\,d\theta$:
+\[
+\frac{1}{5}\int_{\pi/6}^{\pi/2}\sin^2\theta\cos\theta\,d\theta
+=\frac{1}{5}\int_{1/2}^{1} u^2\,du
+=\frac{1}{5}\left[\frac{u^3}{3}\right]_{1/2}^{1}
+=\frac{1}{5}\left(\frac{1}{3}-\frac{1}{24}\right)
+=\frac{1}{5}\cdot\frac{7}{24}
+=\boxed{\frac{7}{120}}.
+\]
+
+\medskip
+\textbf{Alternate (stay in $x,y$).}
+Inner integral: $\displaystyle\int_{\sqrt{3}y}^{\sqrt{1-y^2}}xy^2\,dx
+=\frac{y^2}{2}\bigl[(1-y^2)-3y^2\bigr]=\frac{y^2}{2}(1-4y^2)$.
+Then
+\[
+\int_0^{1/2}\frac{y^2}{2}(1-4y^2)\,dy
+=\frac{1}{2}\int_0^{1/2}(y^2-4y^4)\,dy
+=\frac{1}{2}\left[\frac{y^3}{3}-\frac{4y^5}{5}\right]_0^{1/2}
+=\boxed{\frac{7}{120}}.
+\]
+}
+
+\vfill 
+
+
+\subsection{}
+
+Find the area enclosed by one loop of the four-leaved rose $r=\cos(2\theta)$ shown below.\\
+
+    \includegraphics[scale=1]{Images/L34 4LeafClover.png}
+
+\sol{%
+\textbf{Solution.}
+Area in polar coordinates: $A=\displaystyle\iint_D dA=\int_\alpha^\beta\int_0^{r(\theta)} r\,dr\,d\theta$.
+
+\textbf{Step 1 (one loop).}
+For $r=\cos(2\theta)\ge 0$, one loop uses $-\dfrac{\pi}{4}\le\theta\le\dfrac{\pi}{4}$ and $0\le r\le\cos(2\theta)$.
+
+\textbf{Step 2 (integrate).}
+\[
+A=\int_{-\pi/4}^{\pi/4}\int_0^{\cos(2\theta)} r\,dr\,d\theta
+=\int_{-\pi/4}^{\pi/4}\frac{1}{2}\cos^2(2\theta)\,d\theta.
+\]
+Use $\cos^2(2\theta)=\dfrac{1+\cos(4\theta)}{2}$:
+\[
+A=\frac{1}{4}\int_{-\pi/4}^{\pi/4}\bigl(1+\cos(4\theta)\bigr)\,d\theta
+=\frac{1}{4}\left[\theta+\frac{\sin(4\theta)}{4}\right]_{-\pi/4}^{\pi/4}
+=\frac{1}{4}\cdot\frac{\pi}{2}
+=\boxed{\frac{\pi}{8}}.
+\]
+}
+
+\vfill 
+
+\pagebreak 
+
+
+ \section{Probability}
+Suppose two numbers $x$ and $y$ are randomly generated by a computer such that ${0\leq x\leq 1}$ and $0\leq y\leq 2$. The joint density function is given below.
+$$ f(x,y) = \begin{cases}
+Cx(1+y)\qquad \text{ if $ 0\leq x\leq 1$ and $ 0\leq y\leq 2$}\\
+0 \qquad\qquad\qquad\qquad \text{ otherwise} \end{cases} $$
+ 
+ 
+ \begin{enumerate}[a)]
+\item Find the value of $C$ such that $f(x,y)$ is a joint density function.\vfill
+
+\sol{%
+\textbf{Solution (a).}
+A joint density must satisfy $\displaystyle\iint_{\mathbb{R}^2} f(x,y)\,dA=1$.
+
+\textbf{Step 1 (set up the integral on the support).}
+\[
+1=\int_0^2\int_0^1 Cx(1+y)\,dx\,dy
+=C\int_0^2(1+y)\left[\frac{x^2}{2}\right]_0^1\,dy
+=\frac{C}{2}\int_0^2(1+y)\,dy.
+\]
+
+\textbf{Step 2 (integrate in $y$).}
+\[
+\frac{C}{2}\left[y+\frac{y^2}{2}\right]_0^2
+=\frac{C}{2}(2+2)=2C.
+\]
+
+\textbf{Step 3 (solve for $C$).}
+$2C=1$, so $\boxed{C=\dfrac{1}{2}}$.
+}
+
+\item Using your $C$ value from part $a)$, find $P( .5 \leq Y\leq 1.5)$.\vfill
+
+\sol{%
+\textbf{Solution (b).}
+For a marginal probability in $Y$, integrate over all $x$ on the support:
+\[
+P(0.5\le Y\le 1.5)=\int_{0.5}^{1.5}\int_0^1 f(x,y)\,dx\,dy.
+\]
+
+\textbf{Step 1 (use $C=\tfrac12$).}
+\[
+P=\frac{1}{2}\int_{0.5}^{1.5}\int_0^1 x(1+y)\,dx\,dy
+=\frac{1}{2}\int_{0.5}^{1.5}(1+y)\left[\frac{x^2}{2}\right]_0^1\,dy
+=\frac{1}{4}\int_{0.5}^{1.5}(1+y)\,dy.
+\]
+
+\textbf{Step 2 (integrate).}
+\[
+\frac{1}{4}\left[y+\frac{y^2}{2}\right]_{0.5}^{1.5}
+=\frac{1}{4}\left[\left(1.5+\frac{2.25}{2}\right)-\left(0.5+\frac{0.25}{2}\right)\right]
+=\frac{1}{4}(2)=\boxed{\frac{1}{2}}.
+\]
+}
+
+\item What is the probability that the sum of $x$ and $y$ is less than 1?
+
+\sol{%
+\textbf{Solution (c).}
+The event is $\{x+y<1\}$ inside $0\le x\le 1$, $0\le y\le 2$.
+For $0\le x\le 1$, the condition $y<1-x$ is stricter than $y\le 2$, so $0\le y\le 1-x$.
+
+\textbf{Step 1 (set up).}
+\[
+P(x+y<1)=\int_0^1\int_0^{1-x}\frac{1}{2}x(1+y)\,dy\,dx.
+\]
+
+\textbf{Step 2 (inner integral in $y$).}
+\[
+\frac{1}{2}x\int_0^{1-x}(1+y)\,dy
+=\frac{1}{2}x\left[y+\frac{y^2}{2}\right]_0^{1-x}
+=\frac{1}{2}x\left[(1-x)+\frac{(1-x)^2}{2}\right].
+\]
+
+\textbf{Step 3 (integrate in $x$).}
+\[
+P=\frac{1}{2}\int_0^1\left[x(1-x)+\frac{x(1-x)^2}{2}\right]dx.
+\]
+Use $\displaystyle\int_0^1 x(1-x)\,dx=\frac{1}{6}$ and $\displaystyle\int_0^1 x(1-x)^2\,dx=\frac{1}{12}$:
+\[
+P=\frac{1}{2}\left(\frac{1}{6}+\frac{1}{2}\cdot\frac{1}{12}\right)
+=\frac{1}{2}\left(\frac{1}{6}+\frac{1}{24}\right)
+=\frac{1}{2}\cdot\frac{5}{24}
+=\boxed{\frac{5}{48}}.
+\]
+}
+
+\end{enumerate}
+
+\vfill
+
+
+\newpage
+
+\section{Density and Center of Mass}
+\subsection{Density "Understand"}
+
+Let $\rho $ be density, $V$ be volume, and $m$ be mass.
+\begin{align*}
+    \rho= \frac{m}{V} && m=\rho V
+\end{align*}
+
+\vfill 
+{\color{red}
+\begin{align*}
+    m=\iint \rho \, dA
+\end{align*}}
+
+
+\subsection{Example "Do"}
+Find the mass of a triangular lamina with vertices $(0,0),(1,0)$ and $(0,2)$ and density function $\rho(x,y)=1+3x+y$.
+
+\sol{%
+\textbf{Solution.}
+\textbf{Step 1 (describe the triangle).}
+The segment from $(1,0)$ to $(0,2)$ is $y=2-2x$. For $0\le x\le 1$, $0\le y\le 2-2x$.
+
+\textbf{Step 2 (mass integral).}
+\[
+m=\int_0^1\int_0^{2-2x}(1+3x+y)\,dy\,dx.
+\]
+
+\textbf{Step 3 (inner integral).}
+\[
+\int_0^{2-2x}(1+3x+y)\,dy
+=(1+3x)y+\frac{y^2}{2}\Big|_0^{2-2x}
+=(1+3x)(2-2x)+\frac{(2-2x)^2}{2}.
+\]
+Expand: $(1+3x)(2-2x)=2+4x-6x^2$ and $\dfrac{(2-2x)^2}{2}=2(1-x)^2=2-4x+2x^2$, so the sum is $4-4x^2$.
+
+\textbf{Step 4 (outer integral).}
+\[
+m=\int_0^1(4-4x^2)\,dx
+=\left[4x-\frac{4x^3}{3}\right]_0^1
+=4-\frac{4}{3}
+=\boxed{\frac{8}{3}}.
+\]
+}
+
+\vfill 
+\pagebreak
+
+\subsection{Center of Mass "Understand"}
+
+The \textbf{moment about the y-axis} $M_y$ measures the tendency of an object or system to rotate about the y-axis. The \textbf{moment about the x-axis} $M_x$ measures the tendency of an object or system to rotate about the x-axis.
+
+
+\begin{align*}
+    \overline{x}&=\frac{1}{m}\int\int_D \, x \, \rho(x,y) \, dA\\
+    \overline{y}&=\frac{1}{m}\int\int_D \, y \, \rho(x,y) \, dA
+\end{align*}
+
+
+\subsection{Example "Do"}
+
+Find the center of mass of a triangular lamina with vertices $(0,0),(1,0)$ and $(0,2)$ and density function $\rho(x,y)=1+3x+y$.
+
+\sol{%
+\textbf{Solution.}
+From the previous example, $m=\dfrac{8}{3}$ and $0\le x\le 1$, $0\le y\le 2-2x$.
+
+\textbf{Step 1 ($M_y$, moment about the $y$-axis).}
+\[
+M_y=\int_0^1\int_0^{2-2x}x(1+3x+y)\,dy\,dx
+=\int_0^1 x\left[\int_0^{2-2x}(1+3x+y)\,dy\right]dx
+=\int_0^1 x(4-4x^2)\,dx.
+\]
+\[
+M_y=\int_0^1(4x-4x^3)\,dx
+=\left[2x^2-x^4\right]_0^1=2-1=1.
+\]
+So $\displaystyle\overline{x}=\frac{M_y}{m}=\frac{1}{8/3}=\boxed{\frac{3}{8}}$.
+
+\textbf{Step 2 ($M_x$, moment about the $x$-axis).}
+\[
+M_x=\int_0^1\int_0^{2-2x}y(1+3x+y)\,dy\,dx.
+\]
+Inner: $\displaystyle\int y(1+3x+y)\,dy=\frac{y^2}{2}+\frac{3xy^2}{2}+\frac{y^3}{3}$.
+At $y=2-2x$, with $t=2-2x$:
+\[
+\frac{t^2}{2}+\frac{3xt^2}{2}+\frac{t^3}{3}
+=(1-x)^2\bigl(2+6x\bigr)+\frac{8(1-x)^3}{3}.
+\]
+Integrate from $0$ to $1$:
+\[
+\int_0^1(1-x)^2(2+6x)\,dx+\frac{8}{3}\int_0^1(1-x)^3\,dx
+=\frac{7}{6}+\frac{2}{3}=\frac{11}{6}.
+\]
+So $\displaystyle\overline{y}=\frac{M_x}{m}=\frac{11/6}{8/3}=\frac{11}{6}\cdot\frac{3}{8}=\boxed{\frac{11}{16}}$.
+
+\textbf{Answer:} $\displaystyle\left(\overline{x},\overline{y}\right)=\left(\frac{3}{8},\frac{11}{16}\right)$.
+}
+
+\vfill 
+
+\pagebreak
+
+\section{Practice}
+
+\subsection{}
+
+Find the mass and $\overline{y}$ of a triangular lamina with vertices $(0,1),(1,1),$ and $(1,0)$ with density function $\rho(x,y)=xy$.
+
+\sol{%
+\textbf{Solution.}
+\textbf{Step 1 (region).}
+Vertices $(0,1)$, $(1,1)$, $(1,0)$: hypotenuse $x+y=1$. For $0\le x\le 1$, $1-x\le y\le 1$.
+
+\textbf{Step 2 (mass).}
+\[
+m=\int_0^1\int_{1-x}^1 xy\,dy\,dx
+=\int_0^1 x\left[\frac{y^2}{2}\right]_{1-x}^1\,dx
+=\int_0^1\frac{x}{2}\bigl[1-(1-x)^2\bigr]dx
+=\int_0^1\left(x^2-\frac{x^3}{2}\right)dx.
+\]
+\[
+m=\left[\frac{x^3}{3}-\frac{x^4}{8}\right]_0^1=\frac{1}{3}-\frac{1}{8}=\boxed{\frac{5}{24}}.
+\]
+
+\textbf{Step 3 ($M_x$ for $\overline{y}$).}
+\[
+M_x=\int_0^1\int_{1-x}^1 xy\cdot y\,dy\,dx
+=\int_0^1\int_{1-x}^1 xy^2\,dy\,dx
+=\int_0^1\frac{x}{3}\bigl[1-(1-x)^3\bigr]dx.
+\]
+Since $1-(1-x)^3=3x-3x^2+x^3$,
+\[
+M_x=\frac{1}{3}\int_0^1(3x^2-3x^3+x^4)\,dx
+=\frac{1}{3}\left(1-\frac{3}{4}+\frac{1}{5}\right)=\frac{3}{20}.
+\]
+\[
+\overline{y}=\frac{M_x}{m}=\frac{3/20}{5/24}=\frac{3}{20}\cdot\frac{24}{5}=\boxed{\frac{18}{25}}.
+\]
+}
+
+\vfill
+
+\subsection{}%15.4 number 3
+
+Find the total mass and center of mass of the lamina that occupies the region $D$ and has the given density function $\rho$.
+\begin{align*}
+    D=\{ (x,y) \mid 1 \leq x \leq 3, 1 \leq y \leq 4\}; \rho(x,y)=ky^2
+\end{align*}
+
+\sol{%
+\textbf{Solution.}
+$D$ is a rectangle; $\rho$ separates as a function of $y$ only (constant in $x$).
+
+\textbf{Step 1 (mass).}
+\[
+m=\iint_D ky^2\,dA
+=k\int_1^3\int_1^4 y^2\,dy\,dx
+=k(3-1)\left[\frac{y^3}{3}\right]_1^4
+=2k\left(\frac{64}{3}-\frac{1}{3}\right)
+=\boxed{42k}.
+\]
+
+\textbf{Step 2 ($M_y$ and $\overline{x}$).}
+\[
+M_y=\iint_D x\cdot ky^2\,dA
+=k\left[\frac{x^2}{2}\right]_1^3\left[\frac{y^3}{3}\right]_1^4
+=k\cdot 4\cdot 21=84k.
+\]
+\[
+\overline{x}=\frac{M_y}{m}=\frac{84k}{42k}=\boxed{2}.
+\]
+
+\textbf{Step 3 ($M_x$ and $\overline{y}$).}
+\[
+M_x=\iint_D y\cdot ky^2\,dA
+=k\int_1^3 dx\int_1^4 y^3\,dy
+=2k\left[\frac{y^4}{4}\right]_1^4
+=2k\cdot\frac{255}{4}=\frac{255k}{2}.
+\]
+\[
+\overline{y}=\frac{M_x}{m}=\frac{255k/2}{42k}=\frac{255}{84}=\boxed{\frac{85}{28}}.
+\]
+
+\textbf{Answer:} $m=42k$, $\displaystyle\left(\overline{x},\overline{y}\right)=\left(2,\frac{85}{28}\right)$.
+}
+
+\vfill
+
+\pagebreak
+\section{Harder Practice}
+
+    \subsection{} Find the center of mass of a semicircular plate with of radius $r$. The plate has constant density. %See page 563. \\
+    
+\sol{%
+\textbf{Solution.}
+Take the \textbf{upper} semicircle: $-r\le x\le r$, $0\le y\le \sqrt{r^2-x^2}$, constant $\rho>0$.
+
+\textbf{Step 1 (symmetry).}
+The region is symmetric about the $y$-axis, so $\boxed{\overline{x}=0}$.
+
+\textbf{Step 2 (mass).}
+\[
+m=\rho\cdot\text{(area)}=\rho\cdot\frac{\pi r^2}{2}.
+\]
+
+\textbf{Step 3 ($M_x$).}
+\[
+M_x=\iint_D y\rho\,dA
+=\rho\int_{-r}^{r}\int_0^{\sqrt{r^2-x^2}} y\,dy\,dx
+=\frac{\rho}{2}\int_{-r}^{r}(r^2-x^2)\,dx.
+\]
+\[
+\int_{-r}^{r}(r^2-x^2)\,dx
+=\left[r^2x-\frac{x^3}{3}\right]_{-r}^{r}
+=\frac{4r^3}{3}.
+\]
+So $M_x=\dfrac{2\rho r^3}{3}$.
+
+\textbf{Step 4 ($\overline{y}$).}
+\[
+\overline{y}=\frac{M_x}{m}
+=\frac{2\rho r^3/3}{\rho\pi r^2/2}
+=\frac{4r^3}{3\pi r^2}
+=\boxed{\frac{4r}{3\pi}}.
+\]
+}
+
+\vfill
+
+    \subsection{} Find the center of mass of a semicircular plate whose density at any point is proportional to the distance from the center of the circle. 
+
+\sol{%
+\textbf{Solution.}
+Distance from the center is $\sqrt{x^2+y^2}$, so take $\rho(x,y)=k\sqrt{x^2+y^2}=kr$ in polar coordinates (upper semicircle, radius $R$).
+
+\textbf{Step 1 (symmetry).}
+$\boxed{\overline{x}=0}$ by symmetry about the $y$-axis.
+
+\textbf{Step 2 (mass).}
+\[
+m=\int_0^{\pi}\int_0^{R}(kr)\,r\,dr\,d\theta
+=k\int_0^{\pi}d\theta\int_0^{R}r^2\,dr
+=k\pi\cdot\frac{R^3}{3}
+=\boxed{\frac{k\pi R^3}{3}}.
+\]
+
+\textbf{Step 3 ($M_x$).}
+With $y=r\sin\theta$ and $dA=r\,dr\,d\theta$,
+\[
+M_x=\int_0^{\pi}\int_0^{R}(r\sin\theta)(kr)\,r\,dr\,d\theta
+=k\int_0^{\pi}\sin\theta\,d\theta\int_0^{R}r^3\,dr
+=k\cdot 2\cdot\frac{R^4}{4}
+=\frac{kR^4}{2}.
+\]
+
+\textbf{Step 4 ($\overline{y}$).}
+\[
+\overline{y}=\frac{M_x}{m}
+=\frac{kR^4/2}{k\pi R^3/3}
+=\frac{3R}{2\pi}
+=\boxed{\frac{3R}{2\pi}}.
+\]
+}
+
+\vfill
+
+
+\vspace{8mm}
+
+\end{document}
