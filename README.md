@@ -60,6 +60,26 @@ cd rcls-shiny && Rscript tests/testthat.R
 
 Background turns light red when any A/B check fails. Footer shows the first violation (+ count of others).
 
+## Completability check (optional, CP-SAT)
+
+Sidebar toggle **Check completability (CP-SAT)?** (default **Off**). When **On**, the app debounces edits (~500 ms) and calls a small Python script (`scripts/cp_sat_feasibility.py`) using **OR-Tools** to test whether the current partial grid can extend to a full **RCLS** (and **snail shell equalities** when Snail Method = Yes).
+
+| Tier | Behavior |
+|------|----------|
+| E0 | Python/ortools/script missing — footer note only; no pink |
+| E1 | No completion exists — **pink** background (`#fce4ec`) if v1 checks pass |
+| E2 | Solver timeout / inconclusive — info banner; no pink |
+
+**Local setup (for the toggle):**
+
+```bash
+pip install ortools
+```
+
+From the repo root, with working directory set to the app folder, run the app as usual. The solver is invoked as `python3 scripts/cp_sat_feasibility.py` with JSON on stdin.
+
+**shinyapps.io:** the default image may not include Python/ortools; the toggle will show E0 unless you use a custom environment with Python installed.
+
 ## Snail Method
 
 Under **Order n**, choose **Build RCLS with Snail Method?** (Yes/No, default **No**).

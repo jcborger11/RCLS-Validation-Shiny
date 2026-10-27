@@ -3,6 +3,7 @@ library(shiny)
 source("R/validate.R", local = TRUE)
 source("R/snail_layout.R", local = TRUE)
 source("R/snail_autofill.R", local = TRUE)
+source("R/cp_sat_feasibility.R", local = TRUE)
 
 read_grid_inputs <- function(input, n) {
   mat <- matrix("", n, n)
@@ -132,6 +133,16 @@ ui <- fluidPage(
             selected = "no"
           )
         ),
+        checkboxInput(
+          "check_completability",
+          label = "Check completability (CP-SAT)?",
+          value = FALSE
+        ),
+        helpText(
+          "When on, tests after each edit whether any full RCLS completion exists ",
+          "(+ snail symmetry if Snail Method = Yes). Requires Python 3 and ortools. ",
+          "Pink background = no completion; light red = rule violation."
+        ),
         actionButton("reset", "Reset grid", class = "btn-secondary"),
         actionButton("save_grid", "Save grid", class = "btn-secondary")
       )
@@ -254,6 +265,49 @@ server <- function(input, output, session) {
     validate_from_inputs(input, n, snail_mode = snail_mode)
   })
 
+  debounced_grid_state <- debounce(
+    reactive({
+      n <- input$n
+      req(n)
+      list(
+        n = n,
+        grid = read_grid_inputs(input, n),
+        snail_mode = identical(input$snail_method, "yes"),
+        enabled = isTRUE(input$check_completability),
+        syncing = isTRUE(is_syncing())
+      )
+    }),
+    millis = 500
+  )
+
+  feasibility <- reactive({
+    state <- debounced_grid_state()
+    if (!isTRUE(state$enabled)) {
+      return(NULL)
+    }
+    if (isTRUE(state$syncing)) {
+      return(list(status = "SKIP", message = NULL, wall_ms = NA_integer_))
+    }
+
+    n <- state$n
+    converted <- grid_chars_to_matrix(state$grid, n)
+    if (isTRUE(converted$invalid)) {
+      return(list(status = "SKIP", message = NULL, wall_ms = NA_integer_))
+    }
+
+    partial <- validate_partial_rcls(converted$matrix, n, snail_mode = state$snail_mode)
+    if (!isTRUE(partial$ok)) {
+      return(list(status = "SKIP", message = NULL, wall_ms = NA_integer_))
+    }
+
+    check_completion_feasible(
+      converted$matrix,
+      n,
+      snail_mode = state$snail_mode,
+      timeout_sec = 2
+    )
+  })
+
   observe({
     if (!identical(input$snail_method, "yes")) {
       return()
@@ -339,15 +393,35 @@ server <- function(input, output, session) {
 
   output$background_style <- renderUI({
     result <- validation()
-    bg <- if (isTRUE(result$ok)) "#ffffff" else "#fde8e8"
+    feas <- feasibility()
+    bg <- if (!isTRUE(result$ok)) {
+      "#fde8e8"
+    } else if (
+      isTRUE(input$check_completability) &&
+        !is.null(feas) &&
+        identical(feas$status, "INFEASIBLE")
+    ) {
+      "#fce4ec"
+    } else {
+      "#ffffff"
+    }
     tags$style(HTML(sprintf("#app.app-container { background-color: %s; }", bg)))
   })
 
   output$info_banner <- renderUI({
     result <- validation()
+    feas <- feasibility()
     banner_msgs <- result$info[
       startsWith(result$info, "C1:") | startsWith(result$info, "D1:")
     ]
+    if (
+      isTRUE(input$check_completability) &&
+        !is.null(feas) &&
+        identical(feas$status, "UNKNOWN") &&
+        !is.null(feas$message)
+    ) {
+      banner_msgs <- c(banner_msgs, feas$message)
+    }
     if (length(banner_msgs) == 0L) {
       return(NULL)
     }
@@ -364,6 +438,7 @@ server <- function(input, output, session) {
 
   output$status_footer <- renderUI({
     result <- validation()
+    feas <- feasibility()
     if (isTRUE(result$ok)) {
       primary <- if (result$complete) {
         c2 <- result$info[startsWith(result$info, "C2:")]
@@ -372,7 +447,16 @@ server <- function(input, output, session) {
         incomplete <- result$info[startsWith(result$info, "Incomplete but OK")]
         if (length(incomplete) > 0L) incomplete[[1]] else "No violations so far."
       }
-      div(class = "status-footer ok", primary)
+      extra <- NULL
+      if (
+        isTRUE(input$check_completability) &&
+          !is.null(feas) &&
+          !is.null(feas$message) &&
+          feas$status %in% c("INFEASIBLE", "UNAVAILABLE")
+      ) {
+        extra <- div(class = "status-footer feasibility", feas$message)
+      }
+      tagList(div(class = "status-footer ok", primary), extra)
     } else {
       first <- result$violations[[1]]
       extra <- length(result$violations) - 1L

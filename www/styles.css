@@ -14,6 +14,12 @@ body {
   max-width: 52rem;
 }
 
+.status-footer.feasibility {
+  margin-top: 0.5rem;
+  color: #9c1458;
+  font-size: 0.95rem;
+}
+
 .grid-table {
   border-collapse: collapse;
   margin-top: 1rem;
