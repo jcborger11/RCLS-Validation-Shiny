@@ -1,0 +1,106 @@
+RCLS SNAIL FEASIBILITY SUMMARY (Order n = 10)
+Diagonal-Only Starting Grid (Upper-V / Two Diagonals)
+================================================================================
+
+COMMON SETUP
+• Givens: 20 cells on the main diagonal and anti-diagonal (screenshot with only X-pattern filled).
+• Target: Row-Complete Latin Square (RCLS) — each row and column is 1..10; all 90 horizontal ordered pairs (x→y, x≠y) are distinct.
+• Plus: Snail symmetry — linked cells on each concentric shell must hold the same value.
+• Method: Exhaustive or filtered enumeration + Google OR-Tools CP-SAT (existence of a full completion).
+
+IMPORTANT: Row 1, Row 2, Row 3, and Row 4 were analyzed as SEPARATE projects. A pattern listed under Row 2 was NOT checked together with a pattern under Row 3. Only Row 1 lists complete row 1 (all 10 columns). Rows 2–4 list only the MIDDLE cells between the fixed diagonal entries; other cells on that row were left blank for the solver.
+
+
+================================================================================
+ROW 1 — Complete top row (columns 1–10)
+================================================================================
+Fixed from diagonals: column 1 = 1, column 10 = 10.
+Enumerated: all permutations of {2,3,4,5,6,7,8,9} in columns 2–9 that do not clash with diagonal entries in those columns.
+• Column-feasible candidates: 4,752 (not 8! = 40,320)
+• Admit at least one snail + RCLS completion: 16
+
+#   Col1  Col2  Col3  Col4  Col5  Col6  Col7  Col8  Col9  Col10
+--  ----  ----  ----  ----  ----  ----  ----  ----  ----  -----
+1    1     3     4     6     2     9     5     7     8     10
+2    1     3     5     9     4     7     2     6     8     10
+3    1     3     6     2     4     7     9     5     8     10
+4    1     3     7     5     2     9     6     4     8     10
+5    1     5     4     2     3     8     9     7     6     10
+6    1     5     4     9     3     8     2     7     6     10
+7    1     5     7     2     3     8     9     4     6     10
+8    1     5     7     9     3     8     2     4     6     10
+9    1     6     4     2     3     8     9     7     5     10
+10   1     6     4     9     3     8     2     7     5     10
+11   1     6     7     2     3     8     9     4     5     10
+12   1     6     7     9     3     8     2     4     5     10
+13   1     8     4     5     2     9     6     7     3     10
+14   1     8     5     2     4     7     9     6     3     10
+15   1     8     6     9     4     7     2     5     3     10
+16   1     8     7     6     2     9     5     4     3     10
+
+
+================================================================================
+ROW 2 — Middle only (columns 3–8 between the 2 and the 9)
+================================================================================
+Fixed on row 2: column 2 = 2, column 9 = 9. Columns 1 and 10 left blank for the test.
+• Filtered candidates: 3,800
+• Admit snail + RCLS completion: 12
+
+#   Col3  Col4  Col5  Col6  Col7  Col8     (Full row 2 pattern:  _  2  ?  ?  ?  ?  ?  ?  9  _)
+--  ----  ----  ----  ----  ----  ----
+1    1     8     4     7     3     10
+2    1     8     7     4     3     10
+3    4     5     10    1     6     7
+4    4     6     1     10    5     7
+5    5     1     7     4     10    6
+6    5     10    4     7     1     6
+7    6     1     4     7     10    5
+8    6     10    7     4     1     5
+9    7     5     1     10    6     4
+10   7     6     10    1     5     4
+11   10    8     4     7     3     1
+12   10    8     7     4     3     1
+
+
+================================================================================
+ROW 3 — Middle only (columns 4–7 between the 3 and the 8)
+================================================================================
+Fixed on row 3: column 3 = 3, column 8 = 8. Other row-3 cells blank. Row 2 not considered.
+• Filtered candidates: 524
+• Admit snail + RCLS completion: 12
+
+#   Col4  Col5  Col6  Col7     (Full row 3 pattern:  _  _  3  ?  ?  ?  ?  8  _  _)
+--  ----  ----  ----  ----
+1    1     2     9     10
+2    1     9     2     10
+3    2     1     10    9
+4    2     10    1     9
+5    5     2     9     6
+6    5     9     2     6
+7    6     2     9     5
+8    6     9     2     5
+9    9     1     10    2
+10   9     10    1     2
+11   10    2     9     1
+12   10    9     2     1
+
+
+================================================================================
+ROW 4 — Middle only (columns 5–6 between the 4 and the 7)
+================================================================================
+Fixed on row 4: column 4 = 4, column 7 = 7. Other row-4 cells blank. Rows 2–3 not considered.
+• Filtered candidates: 30
+• Admit snail + RCLS completion: 4
+
+#   Col5  Col6     (Full row 4 pattern:  _  _  _  4  ?  ?  7  _  _  _)
+--  ----  ----
+1    1     10
+2    3     8
+3    8     3
+4    10    1
+
+
+================================================================================
+END OF SUMMARY
+Generated from RCLS-Validation-Shiny enumeration scripts (diagonal givens, CP-SAT).
+================================================================================
