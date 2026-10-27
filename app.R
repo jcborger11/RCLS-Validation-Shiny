@@ -133,16 +133,7 @@ ui <- fluidPage(
             selected = "no"
           )
         ),
-        checkboxInput(
-          "check_completability",
-          label = "Check completability (CP-SAT)?",
-          value = FALSE
-        ),
-        helpText(
-          "When on, tests after each edit whether any full RCLS completion exists ",
-          "(+ snail symmetry if Snail Method = Yes). Requires Python 3 and ortools. ",
-          "Pink background = no completion; light red = rule violation."
-        ),
+        uiOutput("completability_toggle_ui"),
         actionButton("reset", "Reset grid", class = "btn-secondary"),
         actionButton("save_grid", "Save grid", class = "btn-secondary")
       )
@@ -161,6 +152,51 @@ server <- function(input, output, session) {
   reset_counter <- reactiveVal(0L)
   grid_snapshot <- reactiveVal(NULL)
   is_syncing <- reactiveVal(FALSE)
+  cp_sat_avail <- cp_sat_runtime_probe()
+
+  output$completability_toggle_ui <- renderUI({
+    if (isTRUE(cp_sat_avail$available)) {
+      return(tagList(
+        checkboxInput(
+          "check_completability",
+          label = "Check completability (CP-SAT)?",
+          value = FALSE
+        ),
+        helpText(
+          "When on, tests after each edit whether any full RCLS completion exists ",
+          "(+ snail symmetry if Snail Method = Yes). ",
+          "Pink background = no completion; light red = rule violation."
+        )
+      ))
+    }
+
+    tagList(
+      div(
+        class = "completability-toggle-disabled",
+        tags$label(class = "control-label", "Check completability (CP-SAT)?"),
+        tags$div(
+          class = "checkbox disabled-completability",
+          tags$label(
+            tags$input(
+              type = "checkbox",
+              disabled = "disabled"
+            ),
+            "Not available on this server"
+          )
+        ),
+        tags$p(
+          class = "help-block",
+          sprintf(
+            "Python/OR-Tools is not installed here (%s). ",
+            cp_sat_avail$reason
+          ),
+          "Run the app locally with ",
+          code("pip install ortools"),
+          " to use completability and the pink impossible-partial highlight."
+        )
+      )
+    )
+  })
 
   observeEvent(input$reset, {
     reset_counter(reset_counter() + 1L)

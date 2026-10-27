@@ -168,3 +168,29 @@ check_completion_feasible <- function(
     message = message
   )
 }
+
+#' One-time probe: can this server run OR-Tools CP-SAT? (cached per R process.)
+cp_sat_runtime_probe <- local({
+  cache <- NULL
+  function() {
+    if (!is.null(cache)) {
+      return(cache)
+    }
+    mat <- matrix(NA_integer_, 2, 2)
+    res <- check_completion_feasible(mat, 2L, snail_mode = FALSE, timeout_sec = 5)
+    available <- identical(res$status, "FEASIBLE")
+    reason <- if (available) {
+      NA_character_
+    } else if (nzchar(res$reason)) {
+      res$reason
+    } else {
+      "unavailable"
+    }
+    cache <<- list(available = available, reason = reason)
+    cache
+  }
+})
+
+cp_sat_is_available <- function() {
+  isTRUE(cp_sat_runtime_probe()$available)
+}

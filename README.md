@@ -78,7 +78,7 @@ pip install ortools
 
 From the repo root, with working directory set to the app folder, run the app as usual. The solver is invoked as `python3 scripts/cp_sat_feasibility.py` with JSON on stdin.
 
-**shinyapps.io:** the default image may not include Python/ortools; the toggle will show E0 unless you use a custom environment with Python installed.
+**shinyapps.io:** the default image does not include Python/ortools; the completability toggle is **shown disabled** with a short explanation (no E0 spam in the footer). Use a custom environment with Python installed, or run locally, to enable the check.
 
 ## Snail Method
 

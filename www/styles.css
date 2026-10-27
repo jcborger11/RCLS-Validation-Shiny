@@ -20,6 +20,22 @@ body {
   font-size: 0.95rem;
 }
 
+.completability-toggle-disabled {
+  margin-bottom: 0.75rem;
+  opacity: 0.85;
+}
+
+.completability-toggle-disabled .disabled-completability label {
+  color: #666;
+  font-weight: normal;
+  cursor: not-allowed;
+}
+
+.completability-toggle-disabled .help-block {
+  font-size: 0.9rem;
+  color: #555;
+}
+
 .grid-table {
   border-collapse: collapse;
   margin-top: 1rem;
