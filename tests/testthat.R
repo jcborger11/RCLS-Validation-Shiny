@@ -1,5 +1,9 @@
 source("R/validate.R", local = TRUE)
 
+if (file.exists("tests/test_cp_sat_feasibility.R")) {
+  source("tests/test_cp_sat_feasibility.R", local = TRUE)
+}
+
 if (requireNamespace("testthat", quietly = TRUE)) {
   testthat::test_that("blank 6x6 grid has no violations", {
     mat <- matrix(NA_integer_, 6, 6)
